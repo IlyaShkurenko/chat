@@ -7,6 +7,7 @@ import ChatInput from "@/components/chat/ChatInput"
 import ChatMessages from "@/components/chat/ChatMessages"
 import ChatSidebar from "@/components/chat/ChatSidebar"
 import { ChatHistory, Message } from "@/types"
+import { sendMessage } from "@/app/api/chatApi"
 
 export default function ChatUI() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -70,6 +71,27 @@ export default function ChatUI() {
     }
   
     setInputMessage("");
+
+    try {
+      const { response } = await sendMessage(message);
+      const aiResponse: Message = {
+        id: Math.floor(Math.random() * 1000000),
+        content: response,
+        sender: "ai",
+        isSent: true,
+      };
+
+      setCurrentChat((prevChat) => {
+        if (!prevChat) return null;
+        return {
+          ...prevChat,
+          messages: [...prevChat.messages, aiResponse],
+        };
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Handle error (e.g., show an error message to the user)
+    }
   };
   
 
