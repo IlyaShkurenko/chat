@@ -8,6 +8,8 @@ import ChatMessages from "@/components/chat/ChatMessages"
 import ChatSidebar from "@/components/chat/ChatSidebar"
 import { ChatHistory, Message } from "@/types"
 import { sendMessage } from "@/app/api/chatApi"
+import { getClientId, addChatId } from "@/app/utils/storage"
+import { v4 as uuidv4 } from 'uuid'
 
 export default function ChatUI() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -48,7 +50,11 @@ export default function ChatUI() {
       isSent: false,
     };
   
+    const clientId = getClientId();
+    let chatId: string;
+  
     if (currentChatRef.current) {
+      chatId = currentChatRef.current.id.toString();
       setCurrentChat((prevChat) => {
         if (!prevChat) return null;
   
@@ -60,20 +66,22 @@ export default function ChatUI() {
         return updatedChat;
       });
     } else {
+      chatId = uuidv4();
       const newChat: ChatHistory = {
-        id: Math.floor(Math.random() * 1000000),
+        id: chatId,
         title: `New Chat ${chatHistory.length + 1}`,
         messages: [newMessage],
       };
   
       setChatHistory((prevHistory) => [newChat, ...prevHistory]);
       setCurrentChat(newChat);
+      addChatId(chatId);
     }
   
     setInputMessage("");
 
     try {
-      const { response } = await sendMessage(message);
+      const { response } = await sendMessage(message, clientId, chatId);
       const aiResponse: Message = {
         id: Math.floor(Math.random() * 1000000),
         content: response,
