@@ -8,7 +8,7 @@ import ChatMessages from "@/components/chat/ChatMessages"
 import ChatSidebar from "@/components/chat/ChatSidebar"
 import { ChatHistory, Message } from "@/types"
 import { sendMessage, getChatHistory } from "@/app/api/chatApi"
-import { getClientId, addChatId } from "@/app/utils/storage"
+import { getClientId, saveChatData, getChatData, deleteChatData } from "@/app/utils/storage"
 import { v4 as uuidv4 } from 'uuid'
 
 export default function ChatUI() {
@@ -19,6 +19,15 @@ export default function ChatUI() {
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([])
   const [hints, setHints] = useState<string[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
+
+  useEffect(() => {
+    // Load chat data from localStorage on initial render
+    const loadedChatHistory = getChatData();
+    setChatHistory(loadedChatHistory);
+    if (loadedChatHistory.length > 0) {
+      setCurrentChat(loadedChatHistory[0]);
+    }
+  }, []);
 
   useEffect(() => {
     currentChatRef.current = currentChat
@@ -35,6 +44,7 @@ export default function ChatUI() {
         }
         return prevHistory
       })
+      saveChatData(currentChat);
     }
   }, [currentChat])
 
@@ -44,10 +54,15 @@ export default function ChatUI() {
         try {
           const clientId = getClientId();
           const { messages } = await getChatHistory(clientId, currentChat.id);
-          setCurrentChat(prevChat => ({
-            ...prevChat!,
-            messages: messages
-          }));
+          setCurrentChat(prevChat => {
+            if (!prevChat) return null;
+            const updatedChat = {
+              ...prevChat,
+              messages: messages
+            };
+            saveChatData(updatedChat);
+            return updatedChat;
+          });
         } catch (error) {
           console.error('Error loading chat history:', error);
           // Handle error (e.g., show an error message to the user)
@@ -139,6 +154,7 @@ export default function ChatUI() {
     if (currentChat && currentChat.id === chatId) {
       setCurrentChat(null)
     }
+    deleteChatData(chatId);
   }
 
   const deleteMessage = (messageId: number) => {

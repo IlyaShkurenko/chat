@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { ChatHistory } from '@/types';
 
 export const getClientId = (): string => {
   let clientId = localStorage.getItem('clientId');
@@ -9,13 +10,23 @@ export const getClientId = (): string => {
   return clientId;
 };
 
-export const getChatIds = (): string[] => {
-  const chatIds = localStorage.getItem('chatIds');
-  return chatIds ? JSON.parse(chatIds) : [];
+export const saveChatData = (chat: ChatHistory): void => {
+  const chats = getChatData();
+  const existingIndex = chats.findIndex(c => c.id === chat.id);
+  if (existingIndex !== -1) {
+    chats[existingIndex] = chat;
+  } else {
+    chats.unshift(chat);
+  }
+  localStorage.setItem('chats', JSON.stringify(chats));
 };
 
-export const addChatId = (chatId: string): void => {
-  const chatIds = getChatIds();
-  chatIds.push(chatId);
-  localStorage.setItem('chatIds', JSON.stringify(chatIds));
+export const getChatData = (): ChatHistory[] => {
+  const chats = localStorage.getItem('chats');
+  return chats ? JSON.parse(chats) : [];
+};
+
+export const deleteChatData = (chatId: string): void => {
+  const chats = getChatData().filter(chat => chat.id !== chatId);
+  localStorage.setItem('chats', JSON.stringify(chats));
 };
