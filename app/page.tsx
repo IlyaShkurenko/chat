@@ -7,7 +7,7 @@ import ChatInput from "@/components/chat/ChatInput"
 import ChatMessages from "@/components/chat/ChatMessages"
 import ChatSidebar from "@/components/chat/ChatSidebar"
 import { ChatHistory, Message } from "@/types"
-import { sendMessage } from "@/app/api/chatApi"
+import { sendMessage, getChatHistory } from "@/app/api/chatApi"
 import { getClientId, addChatId } from "@/app/utils/storage"
 import { v4 as uuidv4 } from 'uuid'
 
@@ -37,6 +37,26 @@ export default function ChatUI() {
       })
     }
   }, [currentChat])
+
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (currentChat) {
+        try {
+          const clientId = getClientId();
+          const { messages } = await getChatHistory(clientId, currentChat.id);
+          setCurrentChat(prevChat => ({
+            ...prevChat!,
+            messages: messages
+          }));
+        } catch (error) {
+          console.error('Error loading chat history:', error);
+          // Handle error (e.g., show an error message to the user)
+        }
+      }
+    };
+
+    loadChatHistory();
+  }, [currentChat?.id]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 

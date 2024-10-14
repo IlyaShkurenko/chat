@@ -11,3 +11,15 @@ export const sendMessage = async (message: string, clientId: string, chatId: str
     throw error;
   }
 };
+
+export const getChatHistory = async (clientId: string, chatId: string) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/history`, {
+      params: { clientId, chatId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    throw error;
+  }
+};
