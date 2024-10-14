@@ -54,7 +54,7 @@ export default function ChatUI() {
     let chatId: string;
   
     if (currentChatRef.current) {
-      chatId = currentChatRef.current.id.toString();
+      chatId = currentChatRef.current.id;
       setCurrentChat((prevChat) => {
         if (!prevChat) return null;
   
@@ -81,7 +81,9 @@ export default function ChatUI() {
     setInputMessage("");
 
     try {
+      setIsStreaming(true);
       const { response } = await sendMessage(message, clientId, chatId);
+      setIsStreaming(false);
       const aiResponse: Message = {
         id: Math.floor(Math.random() * 1000000),
         content: response,
@@ -97,6 +99,7 @@ export default function ChatUI() {
         };
       });
     } catch (error) {
+      setIsStreaming(false);
       console.error('Error sending message:', error);
       // Handle error (e.g., show an error message to the user)
     }
@@ -111,7 +114,7 @@ export default function ChatUI() {
     setHints([])
   }
 
-  const deleteChat = (chatId: number) => {
+  const deleteChat = (chatId: string) => {
     setChatHistory(prevHistory => prevHistory.filter(chat => chat.id !== chatId))
     if (currentChat && currentChat.id === chatId) {
       setCurrentChat(null)
@@ -138,6 +141,7 @@ export default function ChatUI() {
       <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : 'ml-0'} transition-all duration-300`}>
         <ChatMessages
           messages={currentChat?.messages || []}
+          isThinking={isStreaming}
           deleteMessage={deleteMessage}
         />
         {/* <Button
