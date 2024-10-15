@@ -14,10 +14,10 @@ export const sendMessage = async (message: string, clientId: string, chatId: str
 
 export const getChatHistory = async (clientId: string, chatId: string) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/history`, {
+    const response = await axios.get(`${API_BASE_URL}/messages`, {
       params: { clientId, chatId }
     });
-    return response.data;
+    return response.data.response;
   } catch (error) {
     console.error('Error fetching chat history:', error);
     throw error;

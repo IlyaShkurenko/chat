@@ -21,11 +21,11 @@ export default function ChatUI() {
   const [isStreaming, setIsStreaming] = useState(false)
 
   useEffect(() => {
-    // Load chat data from localStorage on initial render
     const loadedChatHistory = getChatData();
-    setChatHistory(loadedChatHistory);
     if (loadedChatHistory.length > 0) {
-      setCurrentChat(loadedChatHistory[0]);
+      const lastChat = loadedChatHistory[loadedChatHistory.length - 1];
+      setChatHistory(loadedChatHistory.map(({ id, title }) => ({ id, title, messages: [] })));
+      setCurrentChat({ id: lastChat.id, title: lastChat.title, messages: [] });
     }
   }, []);
 
@@ -53,16 +53,21 @@ export default function ChatUI() {
       if (currentChat) {
         try {
           const clientId = getClientId();
-          const { messages } = await getChatHistory(clientId, currentChat.id);
-          setCurrentChat(prevChat => {
-            if (!prevChat) return null;
-            const updatedChat = {
-              ...prevChat,
-              messages: messages
-            };
-            saveChatData(updatedChat);
-            return updatedChat;
-          });
+          const messages = await getChatHistory(clientId, currentChat.id);
+          if(currentChat.messages.length === 0) {
+            setCurrentChat(prevChat => {
+              if (!prevChat) return null;
+              const updatedChat = {
+                ...prevChat,
+                messages: messages.map((message: Message) => ({
+                  ...message,
+                  id: Math.floor(Math.random() * 1000000),
+                }))
+              };
+              saveChatData(updatedChat);
+              return updatedChat;
+            });
+          }
         } catch (error) {
           console.error('Error loading chat history:', error);
           // Handle error (e.g., show an error message to the user)
@@ -110,7 +115,7 @@ export default function ChatUI() {
   
       setChatHistory((prevHistory) => [newChat, ...prevHistory]);
       setCurrentChat(newChat);
-      addChatId(chatId);
+      // addChatId(chatId);
     }
   
     setInputMessage("");
