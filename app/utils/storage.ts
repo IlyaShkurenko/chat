@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ChatHistory } from '@/types';
+import { ChatHistory } from '@/app/types';
 
 export const getClientId = (): string => {
   let clientId = localStorage.getItem('clientId');

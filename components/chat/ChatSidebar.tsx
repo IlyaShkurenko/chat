@@ -4,7 +4,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {  Plus, Trash2 } from "lucide-react"
-import { ChatHistory } from "@/types"
+import { ChatHistory } from "@/app/types"
 
 type Props = {
   sidebarOpen: boolean

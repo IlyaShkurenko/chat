@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Plus, Trash2 } from "lucide-react"
-import type { ChatHistory } from "@/types"
+import type { ChatHistory } from "@/app/types"
 
 type Props = {
   chatHistory: ChatHistory[]
